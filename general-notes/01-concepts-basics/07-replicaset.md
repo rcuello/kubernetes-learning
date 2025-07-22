@@ -1,19 +1,25 @@
+# 🔁 Kubernetes - ReplicaSets
 
-### 🤖 ¿Qué es un ReplicaSet en Kubernetes?
+## 📌 ¿Qué es un ReplicaSet?
 
-Un **ReplicaSet (RS)** es un objeto de Kubernetes que garantiza que un número específico de réplicas de un **Pod** esté en ejecución en todo momento. Es uno de los mecanismos clave de alta disponibilidad y escalabilidad en clústeres de Kubernetes.
+Un **ReplicaSet** es un recurso de Kubernetes que garantiza que una cantidad específica de réplicas de un Pod estén siempre en ejecución.
 
----
-
-### ✅ Funciones principales
-
-* **Asegurar disponibilidad:** Si un pod falla o se elimina, el ReplicaSet crea uno nuevo automáticamente.
-* **Escalado horizontal:** Puedes ajustar fácilmente la cantidad de réplicas para manejar más carga.
-* **Reemplazo automático:** Detecta y reemplaza pods no saludables.
+> 🚀 **Analogía**: Si un Pod es un trabajador, un ReplicaSet es el supervisor que asegura que siempre haya una cantidad fija de trabajadores disponibles. Si uno se va, se contrata a otro.
 
 ---
 
-### 🔧 Estructura básica de un ReplicaSet
+## 🧠 Características Clave
+
+| Característica          | Descripción                                                                 |
+| ----------------------- | --------------------------------------------------------------------------- |
+| Alta disponibilidad     | Si un Pod falla o se elimina, el ReplicaSet crea uno nuevo automáticamente. |
+| Escalabilidad           | Permite aumentar o reducir el número de réplicas según la carga.            |
+| Selección por etiquetas | Usa `selector` para identificar qué Pods controlar.                         |
+| Control de estado       | Monitorea constantemente que el número de réplicas deseado esté activo.     |
+
+---
+
+## 📄 Ejemplo YAML de ReplicaSet
 
 ```yaml
 apiVersion: apps/v1
@@ -32,45 +38,85 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
 ```
 
-**Explicación rápida:**
+### Explicación de campos importantes:
 
-| Campo      | Descripción                                                           |
-| ---------- | --------------------------------------------------------------------- |
-| `replicas` | Número deseado de pods activos.                                       |
-| `selector` | Indica qué pods son gestionados por este ReplicaSet (por sus labels). |
-| `template` | Define la plantilla que usará para crear los pods.                    |
+| Campo      | Descripción                                                               |
+| ---------- | ------------------------------------------------------------------------- |
+| `replicas` | Número de Pods que se desea tener activos.                                |
+| `selector` | Define qué Pods están bajo el control del ReplicaSet (por sus etiquetas). |
+| `template` | Plantilla que el ReplicaSet usará para crear nuevos Pods si es necesario. |
 
----
-
-### 📘 ¿En qué se diferencia de un Deployment?
-
-* El **ReplicaSet** por sí solo no permite actualizaciones automáticas o rollback.
-* Los **Deployments** *gestionan ReplicaSets* y añaden capacidades como **estrategias de actualización**, **pausado**, **historial de revisiones**, etc.
-* En práctica, **no deberías crear ReplicaSets directamente** salvo para casos muy específicos.
+> ⚠️ El `selector.matchLabels` **debe coincidir exactamente** con los `labels` del `template`.
 
 ---
 
-### 🧪 Comandos útiles
+## 🛠️ Comandos Básicos
+
+### Ver ReplicaSets disponibles
 
 ```bash
-# Ver ReplicaSets en el namespace actual
 kubectl get rs
+```
 
-# Escalar un ReplicaSet a 5 réplicas
-kubectl scale rs mi-replicaset --replicas=5
+### Describir un ReplicaSet en detalle
 
-# Describir detalles del ReplicaSet
+```bash
 kubectl describe rs mi-replicaset
 ```
 
+### Escalar un ReplicaSet manualmente
+
+```bash
+kubectl scale rs mi-replicaset --replicas=5
+```
+
+### Eliminar un ReplicaSet desde archivo YAML
+
+```bash
+kubectl delete -f replicaset.yml
+```
+
+### Eliminar un ReplicaSet por nombre
+
+```bash
+kubectl delete rs mi-replicaset
+```
+
 ---
 
-### 🧠 Buenas prácticas
+## 🔍 Inspección
 
-* Usa **Deployments**, no ReplicaSets directamente, para simplificar gestión y actualizaciones.
-* Asegúrate de que el campo `selector` y los `labels` del pod coincidan exactamente.
-* Supervisa los eventos (`kubectl describe`) para detectar errores de programación o conflictos.
+### Ver los Pods gestionados por el ReplicaSet
 
+```bash
+kubectl get pods -l app=nginx
+```
+
+---
+
+## 📚 ReplicaSet vs Deployment
+
+| Recurso    | Descripción                                                              |
+| ---------- | ------------------------------------------------------------------------ |
+| ReplicaSet | Asegura que haya N Pods activos. No maneja actualizaciones ni versiones. |
+| Deployment | Usa ReplicaSets, pero además permite actualizaciones, rollback y más.    |
+
+> ✅ **Recomendado:** Usa **Deployments** en lugar de ReplicaSets directamente para facilitar actualizaciones y gestión de versiones.
+
+---
+
+## 🧠 Buenas prácticas
+
+* No uses ReplicaSets directamente para producción, mejor usa **Deployments**.
+* Verifica que el `selector` coincida con los `labels` del template para evitar errores.
+* Supervisa eventos con `kubectl describe` si los Pods no se crean.
+* Usa etiquetas (`labels`) descriptivas y consistentes para facilitar la selección de Pods.
+
+---
+
+¿Te gustaría que preparemos un documento complementario para Deployments o YAML comparativo? 🚀
