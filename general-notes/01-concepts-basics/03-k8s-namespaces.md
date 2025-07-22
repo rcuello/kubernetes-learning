@@ -38,6 +38,8 @@ kubectl get namespaces
 
 ```bash
 kubectl create namespace desarrollo
+# versión corta
+kubectl create ns desarrollo
 ```
 
 ### Usar un namespace temporalmente
