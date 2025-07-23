@@ -78,6 +78,15 @@ kubectl describe deployment nombre-del-deployment
 kubectl delete deployment nombre-del-deployment
 ```
 
+### Modificar imagen del deployment
+```bash
+kubectl set image deployment/<nombre-del-deployment> <container>=<nueva-imagen>
+
+# Ejemplo
+kubectl set image deployment/hello-deployment hello-app=gcr.io/google-samples/hello-app:2.0
+# Ver cambio
+kubectl describe deployments hello-deployment
+```
 
 ---
 
