@@ -90,6 +90,10 @@ Con Ingress puedes:
 
 ---
 
+## 🧱 Arquitectura
+![alt text](ingress-workflow.png)
+---
+
 ## 🚀 Flujo de Trabajo
 
 1. El cliente accede a `https://miapp.com/dashboard` o `https://api.miapp.com/login`.
@@ -99,7 +103,7 @@ Con Ingress puedes:
 5. El servicio reenvía la solicitud al Pod adecuado (controlado por su Deployment).
 6. El Pod responde al cliente a través del mismo flujo inverso.
 
-![alt text](ingress-workflow.png)
+
 
 ## ✅ Recomendaciones
 
