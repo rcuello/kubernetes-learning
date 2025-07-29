@@ -90,6 +90,40 @@ kubectl describe deployments hello-deployment
 
 ---
 
+## 🚀 Crear un Deployment directamente desde la CLI
+
+Además de usar archivos YAML, puedes crear un Deployment de forma rápida desde la línea de comandos:
+
+```bash
+kubectl create deployment web --image=gcr.io/google-samples/hello-app:1.0
+```
+
+**¿Qué hace este comando?**
+
+* Crea un Deployment llamado `web`.
+* Despliega un Pod con un contenedor que utiliza la imagen `gcr.io/google-samples/hello-app:1.0`.
+* Se crea con **una réplica** por defecto.
+* No expone puertos automáticamente (debes usar `kubectl expose` si deseas acceso externo).
+
+**Exponer el deployment como servicio:**
+
+Servicio interno (ClusterIP):
+
+```bash
+kubectl expose deployment web --port=80 --target-port=8080 --type=ClusterIP
+```
+
+Servicio externo (NodePort):
+
+```bash
+kubectl expose deployment web --port=80 --target-port=8080 --type=NodePort
+```
+
+Esto permite acceder a tu aplicación vía IP del nodo y el puerto asignado.
+
+---
+
+
 ## 📌 Buenas prácticas
 
 * Usa Deployments para aplicaciones que requieren actualización, escalabilidad o alta disponibilidad.

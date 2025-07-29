@@ -17,6 +17,28 @@ Un **Ingress** en Kubernetes es un recurso que permite **exponer múltiples serv
 
 ---
 
+## 🧩 ¿Qué es un Ingress Controller?
+
+Un **Ingress Controller** es el componente que **ejecuta las reglas definidas** en los objetos `Ingress`. Se implementa como un **pod (o conjunto de pods)** que intercepta las peticiones entrantes al clúster y las enruta de acuerdo con la configuración del `Ingress`.
+
+### 🛠️ Ingress Controllers comunes
+
+| Ingress Controller  | Características clave                                                                                              |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **NGINX Ingress**   | El más usado, sólido, personalizable mediante annotations. Ideal para entornos tradicionales.                      |
+| **Traefik**         | Ligero, dinámico y orientado a microservicios. Se integra fácilmente con certificados automáticos (Let's Encrypt). |
+| **HAProxy Ingress** | Potente en alto rendimiento y balanceo de carga avanzado. Recomendado para tráfico pesado.                         |
+
+🔧 **Instalación**: Todos pueden instalarse como `Deployment` con sus respectivos `Service` de tipo `LoadBalancer` o `NodePort`, según tu infraestructura.
+
+📄 Documentación oficial:
+
+* [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/)
+* [Traefik](https://doc.traefik.io/traefik/)
+* [HAProxy Ingress](https://github.com/jcmoraisjr/haproxy-ingress)
+
+---
+
 ## 🧬 Componentes del Ingress
 
 | Componente           | Función clave                                              |
@@ -127,5 +149,5 @@ spec:
 
 Ahora que entiendes cómo exponer servicios externos con Ingress, el siguiente paso es aprender sobre **ConfigMaps y Secrets**, recursos clave para manejar configuraciones y datos sensibles en tus aplicaciones.
 
-📄 [Siguiente: 03-configmap-secret.md →](./03-configmap-secret.md)
+📄 [Siguiente: 03-configmap-secret.md →](./02-configurar-ingress.md)
 
