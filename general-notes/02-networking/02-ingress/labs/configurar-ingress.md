@@ -200,12 +200,24 @@ Para que `hello-world.example` funcione, debes mapear el dominio a la IP de Mini
 Agrega esta línea a tu archivo `/etc/hosts`:
 
 ```
-192.168.49.2 hello-world.example
+127.0.0.1 hello-world.example
 ```
 
 > En Windows, el archivo se encuentra en:
 > `C:\Windows\System32\drivers\etc\hosts`
 
+Usa el siguiente comando para verificar:
+
+```bash
+ping hello-world.example
+
+Haciendo ping a hello-world.example [127.0.0.1] con 32 bytes de datos:
+Respuesta desde 127.0.0.1: bytes=32 tiempo<1m TTL=128
+Respuesta desde 127.0.0.1: bytes=32 tiempo<1m TTL=128
+Respuesta desde 127.0.0.1: bytes=32 tiempo<1m TTL=128
+Respuesta desde 127.0.0.1: bytes=32 tiempo<1m TTL=128
+
+```
 ---
 
 ## 🌐 Paso 4: Exponer el Ingress hacia fuera del clúster con `minikube tunnel`
