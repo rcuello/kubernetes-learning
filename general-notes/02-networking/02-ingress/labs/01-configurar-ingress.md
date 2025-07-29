@@ -1,12 +1,3 @@
-Aquí tienes una versión **mejorada y más clara** del laboratorio que incorpora:
-
-* Mejor estructura y lenguaje fluido.
-* Separación más clara entre pasos operativos y explicaciones.
-* Correcciones de detalles técnicos.
-* Reorganización lógica de algunas secciones.
-
----
-
 # 🧪 Laboratorio: Exponer Servicios con Ingress en Kubernetes (Minikube)
 
 Este laboratorio te guía para instalar un **controlador Ingress**, desplegar una aplicación de ejemplo y acceder a ella mediante un **nombre de dominio personalizado** dentro de un clúster local con **Minikube**.
