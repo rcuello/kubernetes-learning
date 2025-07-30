@@ -49,199 +49,107 @@ Entender cómo el tráfico fluye a través de un `ClusterIP` es clave:
 
 -----
 
-## 📋 Ejemplo de Manifiesto de ClusterIP Service
+## 📋 Ejemplo de Manifiesto y Pruebas con Minikube
 
-Aquí tienes un ejemplo de cómo definir un `ClusterIP` Service para tu backend:
+Vamos a definir un Deployment y un Service de tipo `ClusterIP` y luego exploraremos cómo acceder a él en un entorno de desarrollo como Minikube.
+
+`hello-app-clusterip.yaml`:
 
 ```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-deployment-clusterip
+  labels:
+    app: hello
+spec:
+  replicas: 2 # Tendremos dos réplicas de nuestra aplicación
+  selector:
+    matchLabels:
+      app: hello-clusterip # Este selector apunta a los Pods del Deployment
+  template:
+    metadata:
+      labels:
+        app: hello-clusterip # Estas etiquetas identifican los Pods para el Service
+    spec:
+      containers:
+        - name: hello-app
+          image: gcr.io/google-samples/hello-app:2.0 # Una app simple que responde "Hello, world! Version: 2.0.0"
+          ports:
+            - containerPort: 8080 # El puerto en el que la aplicación escucha dentro del Pod
+
+---
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: mi-backend-service # Nombre único para tu Service
-  labels:
-    app: mi-aplicacion
+  name: hello-service-clusterip # Nombre de nuestro ClusterIP Service
 spec:
-  type: ClusterIP # Aunque es el valor por defecto, es buena práctica explicitarlo
-  selector:       # CRÍTICO: Este selector busca los Pods a los que el Service enviará tráfico
-    app: mi-backend # El Service enviará tráfico a Pods que tengan la etiqueta 'app: mi-backend'
+  type: ClusterIP # Declaramos explícitamente el tipo ClusterIP
+  selector:
+    app: hello-clusterip # El Service enviará tráfico a Pods con esta etiqueta
   ports:
-    - protocol: TCP     # Protocolo de la conexión
-      port: 80          # El puerto que el Service expone (la ClusterIP)
-      targetPort: 8080  # El puerto en el que la aplicación escucha dentro del Pod
+    - port: 80         # El puerto que el Service expone internamente (su ClusterIP)
+      targetPort: 8080 # El puerto al que el Service envía el tráfico dentro del Pod
 ```
 
-**Explicación del Ejemplo:**
+**Pasos para probar en Minikube:**
 
-Este manifiesto crea un Service llamado `mi-backend-service`. Cualquier tráfico dirigido a este Service en el puerto `80` será redirigido a uno de los Pods que tengan la etiqueta `app: mi-backend`, específicamente al puerto `8080` dentro de ese Pod. Esta comunicación es totalmente interna al clúster.
-
------
-
-## 🔬 Ejemplo Práctico: Navegación Interna con Dos Nodos
-
-Para demostrar cómo funciona el `ClusterIP` Service y su balanceo de carga, vamos a simular un escenario con un clúster de dos nodos (como podría ser un Minikube con múltiples nodos o un clúster real).
-
-**Prerrequisitos:**
-
-  * Un clúster de Kubernetes con al menos dos nodos. Si usas Minikube, puedes agregar un nodo así:
-    ```bash
-    minikube start --nodes 2
-    ```
-  * `kubectl` configurado para tu clúster.
-
-**Pasos:**
-
-1.  **Crea un Deployment para tu aplicación de Backend:**
-    Vamos a usar una imagen simple que responde con el nombre de su Pod y el nodo donde se ejecuta.
-
-    `backend-deployment.yaml`:
-
-    ```yaml
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: backend-app
-      labels:
-        app: backend
-    spec:
-      replicas: 2 # Para asegurar que tengamos Pods en diferentes nodos
-      selector:
-        matchLabels:
-          app: backend
-      template:
-        metadata:
-          labels:
-            app: backend
-        spec:
-          containers:
-          - name: backend-container
-            image: hashicorp/http-echo:latest # Una imagen simple que hace echo
-            args: ["-listen=:8080", "-text=Hello from Pod $(HOSTNAME) on node $(NODE_NAME)"]
-            env: # Inyectamos el nombre del nodo como variable de entorno
-            - name: NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            ports:
-            - containerPort: 8080
-    ```
-
-    Aplica el Deployment:
+1.  **Aplica los manifiestos:**
+    Guarda el contenido anterior en un archivo llamado `hello-app-clusterip.yaml` y aplícalo:
 
     ```bash
-    kubectl apply -f backend-deployment.yaml
+    kubectl apply -f hello-app-clusterip.yaml
     ```
 
-    Verifica que los Pods estén corriendo y en qué nodos:
+2.  **Verifica el Deployment y el Service:**
+    Asegúrate de que tus Pods y tu Service estén corriendo:
 
     ```bash
-    kubectl get pods -o wide -l app=backend
+    kubectl get deployment hello-deployment-clusterip
+    kubectl get svc hello-service-clusterip
     ```
 
-    Deberías ver dos Pods, idealmente en nodos diferentes si tu scheduler los distribuye.
+    La salida del Service mostrará una `CLUSTER-IP` asignada y `TYPE` como `ClusterIP`.
 
-2.  **Crea un Service de tipo `ClusterIP` para el Backend:**
-
-    `backend-service.yaml`:
-
-    ```yaml
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: backend-service
-      labels:
-        app: backend-service
-    spec:
-      type: ClusterIP
-      selector:
-        app: backend # Este service apuntará a los Pods con 'app: backend'
-      ports:
-        - protocol: TCP
-          port: 80
-          targetPort: 8080
-    ```
-
-    Aplica el Service:
+3.  **Intenta acceder con `minikube service` (Demostración de acceso local para ClusterIP):**
+    Aunque un `ClusterIP` no está diseñado para acceso externo directo, Minikube ofrece una forma de simularlo para desarrollo local usando `minikube service`. Este comando inicia un túnel que te permite acceder a Services internos desde tu máquina local.
 
     ```bash
-    kubectl apply -f backend-service.yaml
+    minikube service hello-service-clusterip
     ```
 
-    Obtén la ClusterIP de tu nuevo Service:
+    Verás una salida similar a esta:
+
+    ```
+    |-----------|-------------------------|-------------|--------------|
+    | NAMESPACE |         NAME            | TARGET PORT |     URL      |
+    |-----------|-------------------------|-------------|--------------|
+    | default   | hello-service-clusterip |             | No node port |
+    |-----------|-------------------------|-------------|--------------|
+    😿  service default/hello-service-clusterip has no node port
+    ❗  Services [default/hello-service-clusterip] have type "ClusterIP" not meant to be exposed, however for local development minikube allows you to access this !
+    🏃  Starting tunnel for service hello-service-clusterip.
+    |-----------|-------------------------|-------------|------------------------|
+    | NAMESPACE |         NAME            | TARGET PORT |          URL           |
+    |-----------|-------------------------|-------------|------------------------|
+    | default   | hello-service-clusterip |             | http://127.0.0.1:57335 |
+    |-----------|-------------------------|-------------|------------------------|
+    🎉  Opening service default/hello-service-clusterip in default browser...
+    ❗  Because you are using a Docker driver on windows, the terminal needs to be open to run it.
+    ```
+
+    Minikube te abrirá automáticamente una URL en tu navegador (ej. `http://127.0.0.1:57335`). **Es fundamental mantener la terminal donde ejecutaste `minikube service` abierta**, ya que es el túnel que permite el acceso desde tu máquina local al Service interno de Minikube.
+
+    Al acceder a la URL, deberías ver la respuesta de la aplicación `hello-app` (por ejemplo, "Hello, world\! Version: 2.0.0"). Si refrescas varias veces, notarás que las solicitudes son balanceadas entre los diferentes Pods del Deployment.
+
+4.  **Limpieza de recursos:**
+    Cuando hayas terminado tus pruebas, puedes eliminar los recursos:
 
     ```bash
-    kubectl get svc backend-service
+    kubectl delete -f hello-app-clusterip.yaml
     ```
 
-    Verás algo como:
-
-    ```
-    NAME              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
-    backend-service   ClusterIP   10.108.XX.YY    <none>        80/TCP    XXs
-    ```
-
-    La `CLUSTER-IP` (ej. `10.108.XX.YY`) es la IP virtual interna.
-
-3.  **Crea un Pod de Cliente para Probar la Conexión (también en un nodo):**
-    Ahora, para probar la comunicación interna, vamos a crear un Pod temporal que usará `curl` para llamar al `backend-service`.
-
-    `client-pod.yaml`:
-
-    ```yaml
-    apiVersion: v1
-    kind: Pod
-    metadata:
-      name: client-pod
-    spec:
-      containers:
-      - name: busybox-container
-        image: busybox:latest
-        command: ["sh", "-c", "echo 'Connecting to backend-service...'; while true; do wget -q -O- http://backend-service:80; echo; sleep 1; done"]
-        # Alternativa para usar la IP directa: command: ["sh", "-c", "while true; do wget -q -O- http://10.108.XX.YY:80; echo; sleep 1; done"]
-      restartPolicy: Never # Se detiene el Pod una vez terminado el comando
-    ```
-
-    Aplica el Pod cliente:
-
-    ```bash
-    kubectl apply -f client-pod.yaml
-    ```
-
-4.  **Observa la Comunicación Interna y el Balanceo de Carga:**
-    Ahora, vamos a ver los logs del `client-pod`. Verás cómo `kube-proxy` enruta las peticiones de forma round-robin entre los Pods de backend, incluso si están en diferentes nodos.
-
-    ```bash
-    kubectl logs -f client-pod
-    ```
-
-    Deberías ver una salida alternada similar a esta (los nombres de Pods y nodos variarán):
-
-    ```
-    Connecting to backend-service...
-    Hello from Pod backend-app-xxxxx-abcde on node minikube
-    Hello from Pod backend-app-yyyyy-fgijk on node minikube-m02
-    Hello from Pod backend-app-xxxxx-abcde on node minikube
-    Hello from Pod backend-app-yyyyy-fgijk on node minikube-m02
-    ...
-    ```
-
-    Esto demuestra que:
-
-      * El `client-pod` puede resolver `backend-service` a su `ClusterIP`.
-      * Las solicitudes a la `ClusterIP` son balanceadas entre los diferentes Pods del Deployment de backend.
-      * La comunicación ocurre sin importar en qué nodo esté el Pod cliente o los Pods de backend, lo que demuestra la abstracción de red de Kubernetes.
-
-**Limpieza:**
-
-Cuando hayas terminado, puedes eliminar los recursos:
-
-```bash
-kubectl delete -f client-pod.yaml
-kubectl delete -f backend-service.yaml
-kubectl delete -f backend-deployment.yaml
-# Si iniciaste Minikube con varios nodos y ya no los necesitas:
-minikube delete
-```
-
-Este ejemplo ilustra claramente cómo un `ClusterIP` Service abstrae la ubicación de los Pods y proporciona un punto de acceso estable y balanceado internamente dentro del clúster.
+Este ejemplo demuestra cómo, a pesar de que los `ClusterIP` Services son internos, herramientas como Minikube ofrecen utilidades para facilitar el desarrollo y las pruebas locales. En un clúster de producción, para acceder a un `ClusterIP` desde fuera, necesitarías un `NodePort`, `LoadBalancer` o un `Ingress`.
 
 -----
