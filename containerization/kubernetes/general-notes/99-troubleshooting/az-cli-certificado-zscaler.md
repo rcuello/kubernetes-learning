@@ -97,7 +97,11 @@ $env:REQUESTS_CA_BUNDLE = "$certifiPath.modified.pem"
 
 Esto indica a `requests` (usado internamente por Azure CLI) que utilice el nuevo bundle con el certificado de Zscaler incluido.
 
+
+> Nota: En windows , puedes configurar la variable de entorno `REQUESTS_CA_BUNDLE` con el comando `sysdm.cpl`.
+
 ---
+
 
 ### Paso 4: Ejecuta `az login`
 
