@@ -138,27 +138,47 @@ Aquí tienes los comandos clave para trabajar y depurar un Service de tipo `Node
     hello-service-np   NodePort   10.100.200.50   <none>        80:30007/TCP    15s
     ```
 
-3.  **Obtener la IP de Minikube (si usas Minikube):**
-    Necesitas la IP de tu Nodo (en Minikube, es la IP de la VM de Minikube) para acceder al `NodePort`.
+3.  **Acceder a la aplicación directamente con `minikube service` (Recomendado):**
+    Minikube ofrece un comando conveniente para abrir automáticamente los servicios `NodePort` (y `LoadBalancer`). Este comando gestiona el `minikube tunnel` por ti si es necesario y te proporciona una URL accesible desde tu navegador.
 
     ```bash
-    minikube ip
+    minikube service hello-service-np
     ```
 
-      * **Ejemplo de salida:** `192.168.49.2`
+      * **Salida típica:**
+        ```
+        |-----------|------------------|-------------|---------------------------|
+        | NAMESPACE |      NAME        | TARGET PORT |           URL             |
+        |-----------|------------------|-------------|---------------------------|
+        | default   | hello-service-np |          80 | http://192.168.49.2:30007 |
+        |-----------|------------------|-------------|---------------------------|
+        🏃  Starting tunnel for service hello-service-np.
+        |-----------|------------------|-------------|------------------------|
+        | NAMESPACE |      NAME        | TARGET PORT |          URL           |
+        |-----------|------------------|-------------|------------------------|
+        | default   | hello-service-np |             | http://127.0.0.1:50940 |
+        |-----------|------------------|-------------|------------------------|
+        🎉  Opening service default/hello-service-np in default browser...
+        ❗  Because you are using a Docker driver on windows, the terminal needs to be open to run it.
+        ```
+      * Minikube intentará abrir la URL en tu navegador predeterminado. La URL con `127.0.0.1` y un puerto alto (ej. `50940`) es el resultado del `minikube tunnel` que se ejecuta en segundo plano para redirigir el tráfico desde tu `localhost` al `NodePort` de la VM de Minikube. **Mantén esta terminal abierta** mientras pruebas tu servicio.
 
-4.  **Acceder a la aplicación desde fuera del clúster:**
-    Una vez que tengas la IP de Minikube y el `NodePort` (30007 en este ejemplo), puedes acceder a tu aplicación:
+4.  **Acceder a la aplicación usando la IP del Nodo (alternativa):**
+    Si `minikube service` no funciona o prefieres el acceso directo:
 
-      * **Desde el navegador:** Abre `http://<IP_DE_MINIKUBE>:30007` (ej. `http://192.168.49.2:30007`)
-      * **Desde la terminal con `curl`:**
+      * Primero, **obtén la IP de Minikube**:
+        ```bash
+        minikube ip
+        ```
+          * **Ejemplo de salida:** `192.168.49.2`
+      * Luego, usa esa IP y el `NodePort` (30007 en este ejemplo) en tu navegador o con `curl`:
         ```bash
         curl http://$(minikube ip):30007
         ```
           * **Salida esperada:** `Hello, world! Version: 1.0.0 Hostname: hello-deployment-np-xxxx`
 
 5.  **Depurar el flujo de tráfico (Capa de Transporte):**
-    Si no puedes acceder, verifica que el puerto 30007 esté realmente abierto y escuchando en tu Nodo (o en tu máquina host si es Minikube):
+    Si aún no puedes acceder, verifica que el puerto 30007 (o el puerto asignado por `minikube service` como `50940`) esté realmente abierto y escuchando en tu Nodo (o en tu máquina host si es Minikube):
 
       * **En Linux (si SSH al Nodo):**
         ```bash
@@ -167,8 +187,10 @@ Aquí tienes los comandos clave para trabajar y depurar un Service de tipo `Node
       * **En Windows (en tu máquina host, para Minikube):**
         ```cmd
         netstat -ano | findstr :30007
+        # O para el puerto asignado por minikube service (ej. 50940):
+        netstat -ano | findstr :50940
         ```
-          * **Deberías ver:** Un proceso escuchando en `0.0.0.0:30007` (o `127.0.0.1:30007` si el driver de Minikube lo mapea así). Si no ves nada, el `NodePort` no se está exponiendo correctamente.
+          * **Deberías ver:** Un proceso escuchando en `0.0.0.0:30007` (o `127.0.0.1:30007` / `127.0.0.1:50940`). Si no ves nada, el `NodePort` no se está exponiendo correctamente, posiblemente por un conflicto de puerto.
 
 6.  **Verificar los Endpoints del Service:**
     Asegúrate de que el Service esté seleccionando correctamente los Pods y que estos estén `Ready`.
