@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-config
+data:
+  # Nombre de la aplicación
+  APP_NAME: "my-ecommerce-app"
+
+  # Entorno de ejecución
+  ENVIRONMENT: "development"
+  
+  # Límite máximo de conexiones
+  MAX_CONNECTIONS: "100"
+
+  # Modo de depuración
+  DEBUG_MODE: "true"
+
+  # Idiomas soportados
+  SUPPORTED_LANGUAGES: "es,en,pt"
+
+  # Características habilitadas (como string JSON)
+  FEATURE_FLAGS: |
+    {
+      "enableDiscounts": true,
+      "multiCurrencySupport": true,
+      "betaCheckoutFlow": false,
+      "availablePromos": ["welcome10", "summer25"]
+    }
+
+  # Ruta de logs
+  LOG_PATH: "/var/log/ecommerce"
+
+  # Tiempo de espera para requests (segundos)
+  TIMEOUT_SECONDS: "30"
+
+  # URL del API de catálogo
+  PRODUCT_API_URL: "https://api.example.com/products"
+
+  # URL del API de pagos
+  PAYMENT_GATEWAY_URL: "https://payments.example.com"
+
+  # Archivo de configuración de impuestos
+  taxes.properties: |
+    country.default=CO
+    tax.rate=0.19
+    tax.inclusive=false
+
+  # Configuración de interfaz de usuario
+  ui.properties: |
+    theme=modern
+    show.out.of.stock=true
+    currency.symbol=$
+    default.language=es
+
+  # Configuración de correo saliente
+  email.properties: |
+    smtp.server=smtp.example.com
+    smtp.port=587
+    smtp.user=noreply@example.com
+    smtp.tls=true
+    
