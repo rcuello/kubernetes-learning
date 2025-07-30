@@ -55,6 +55,47 @@ kubectl get secret ecommerce-secrets -o jsonpath="{.data.db_pass}" | base64 --de
 
 ---
 
+Excelente idea. Aquí tienes la sección actualizada agregando el uso de `kubectl edit secret` para modificar un Secret directamente desde el editor:
+
+---
+
+## ✏️ Editar un Secret en tiempo real
+
+Puedes editar un Secret directamente desde tu editor (por defecto `vim`, o el que tengas configurado) usando:
+
+```bash
+kubectl edit secret ecommerce-secrets
+```
+
+Esto abrirá el recurso en formato YAML, pero **recuerda**: los valores en `data` están codificados en **Base64**, así que verás algo como esto:
+
+```yaml
+data:
+  db_user: YWRtaW4=
+  db_pass: c3VwZXJzZWNyZXQ=
+```
+
+> ✍️ Si editas manualmente los valores, asegúrate de codificarlos en Base64 antes de guardarlos.
+
+### 👉 Ejemplo
+
+Supongamos que quieres cambiar la contraseña `db_pass` de `supersecret` a `newpass123`. Primero conviértelo:
+
+```bash
+echo -n "newpass123" | base64
+# Resultado: bmV3cGFzczEyMw==
+```
+
+Luego reemplaza el valor en el editor:
+
+```yaml
+data:
+  db_pass: bmV3cGFzczEyMw==
+```
+
+Guarda y cierra. Kubernetes aplicará el cambio al Secret inmediatamente.
+---
+
 ## 📊 Comparación rápida: ConfigMap vs Secret
 
 | Característica      | ConfigMap                 | Secret                        |
