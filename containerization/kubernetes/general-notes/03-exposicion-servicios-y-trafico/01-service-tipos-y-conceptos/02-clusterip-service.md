@@ -149,6 +149,12 @@ spec:
     ```bash
     kubectl delete -f hello-app-clusterip.yaml
     ```
+    o tambien,
+
+    ```bash
+    kubectl delete svc hello-service-clusterip
+    kubectl delete deployment hello-deployment-clusterip
+    ```
 
 Este ejemplo demuestra cómo, a pesar de que los `ClusterIP` Services son internos, herramientas como Minikube ofrecen utilidades para facilitar el desarrollo y las pruebas locales. En un clúster de producción, para acceder a un `ClusterIP` desde fuera, necesitarías un `NodePort`, `LoadBalancer` o un `Ingress`.
 
