@@ -83,6 +83,7 @@ Aquí tienes los comandos esenciales para interactuar directamente con los Pods:
 
     ```bash
     kubectl run nginx-test-pod --image=nginx --restart=Never --port=80
+    
     # Para especificar un namespace:
     kubectl run nginx-test-pod --image=nginx --restart=Never --port=80 --namespace=desarrollo
     ```
