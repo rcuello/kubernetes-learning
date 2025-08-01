@@ -103,7 +103,7 @@ exit
 
 Ahora, vamos a resolver el problema anterior usando un `Deployment` con almacenamiento persistente.
 
-### Archivo de definición (`mysql-persistence.yaml`)
+### Archivo de definición (`mysql-persistence-storageclass.yaml`)
 
 ```yaml
 # --- 1. Definición de la StorageClass para el aprovisionamiento dinámico ---
@@ -173,7 +173,7 @@ spec:
 ## 🚀 3. Despliegue de los componentes
 
 ```bash
-kubectl apply -f mysql-persistence.yaml
+kubectl apply -f mysql-persistence-storageclass.yaml
 ```
 
 **Salida esperada:**
@@ -230,7 +230,7 @@ kubectl delete deployment mysql-deployment
 
 ```bash
 # Vuelve a crear el Deployment.
-kubectl apply -f mysql-persistence.yaml
+kubectl apply -f mysql-persistence-storageclass.yaml
 ```
 Salida : 
 
