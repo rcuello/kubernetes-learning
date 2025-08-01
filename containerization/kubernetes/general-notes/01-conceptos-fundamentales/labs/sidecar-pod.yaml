@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sidecar-pod
+spec:
+  volumes: # 🎯 Se define un volumen que será compartido
+  - name: shared-data
+    emptyDir: {}
+  containers:
+  - name: main-container # 🎯 El contenedor principal (nginx)
+    image: nginx
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: shared-data
+      mountPath: /usr/share/nginx/html # Monta el volumen en el directorio de servicio de Nginx
+
+  - name: sidecar-container # 🎯 El contenedor "sidecar" (busybox)
+    image: busybox
+    command: ["sh", "-c", "echo '<h1>¡Hola desde el sidecar!</h1>' > /var/www/index.html && sleep 3600"]
+    volumeMounts:
+    - name: shared-data
+      mountPath: /var/www # Monta el mismo volumen

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-de-prueba
+spec:
+  containers: # ❌ Falta el campo "name" dentro del contenedor
+    - image: nginx

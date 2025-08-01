@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+    - name: nginx-container # 🎯 Un nombre único para el contenedor
+      image: nginx:1.14.2  # 🎯 La imagen de Docker a usar
+      ports:
+        - containerPort: 80 # 🎯 El puerto que expone el contenedor
