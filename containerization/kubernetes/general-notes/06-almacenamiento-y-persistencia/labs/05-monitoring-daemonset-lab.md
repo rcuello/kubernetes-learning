@@ -76,7 +76,7 @@ kubectl delete -f monitoring-deployment-problema.yaml
 
 ## ✅ 2. La solución: DaemonSet para cobertura automática
 
-Ahora desplieguemos correctamente usando **DaemonSet** que garantiza **un pod por nodo automáticamente**.
+Ahora despleguemos correctamente usando **DaemonSet** que garantiza **un pod por nodo automáticamente**.
 
 ### 📄 Archivo `monitoring-daemonset.yaml`
 
